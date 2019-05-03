@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Note {
     private int[] arrNote;
     private String strNote;
@@ -8,6 +11,23 @@ public class Note {
 
     public Note(final int[] note) {
         arrNote = note;
+    }
+
+    public static String NotesToStringSong(final List<Note> notes) {
+        StringBuilder song = new StringBuilder();
+        notes.forEach(note -> {
+            song.append(note.getStringForm());
+            song.append(" ");
+        });
+        return song.toString();
+    }
+
+    public static List<Note> StringSongToNotes(final String song) {
+        List<Note> notes = new ArrayList<>();
+        for(String strNote : song.split(" ")) {
+            notes.add(new Note(strNote));
+        }
+        return notes;
     }
 
     public int[] getIntForm() {
