@@ -9,16 +9,20 @@ public class Note {
         strNote = note;
     }
 
-    public Note(final int[] note) {
-        arrNote = note;
+    public Note(final int key, final int length) {
+        arrNote = new int[2];
+        arrNote[0] = key;
+        arrNote[1] = length;
     }
 
-    public static String NotesToStringSong(final List<Note> notes) {
+    public static String NotesToStringSong(final Note[] notes) {
         StringBuilder song = new StringBuilder();
-        notes.forEach(note -> {
-            song.append(note.getStringForm());
+        String str;
+        for(Note note : notes) {
+            str = note.getStringForm();
+            song.append(str);
             song.append(" ");
-        });
+        }
         return song.toString();
     }
 
@@ -29,6 +33,22 @@ public class Note {
         }
         return notes;
     }
+
+    public void mutate() {
+        if(arrNote == null) {
+            parse();
+        }
+        doMutate();
+    }
+
+    private void doMutate() {
+        arrNote[0]++;
+        if(arrNote[0] > 96) {
+            arrNote[0] = 8;
+        }
+        arrNote[1] = (arrNote[1] + 1) % 8;
+    }
+
 
     public int[] getIntForm() {
         if(arrNote != null) {
@@ -102,14 +122,14 @@ public class Note {
     }
 
     private int[] parse() {
-        int[] res = new int[2];
+        arrNote = new int[2];
         int octave;
         int noteL;
         noteL = strNote.length();
         octave = Character.getNumericValue(strNote.charAt(noteL - 2));
-        res[0] = getIntNote(noteL == 3 ? strNote.substring(0, 1) : strNote.substring(0, 2), octave);
-        res[1] = getIntLength(strNote.charAt(noteL - 1));
-        return res;
+        arrNote[0] = getIntNote(noteL == 3 ? strNote.substring(0, 1) : strNote.substring(0, 2), octave);
+        arrNote[1] = getIntLength(strNote.charAt(noteL - 1));
+        return arrNote;
     }
 
     private int getIntLength(final char l) {

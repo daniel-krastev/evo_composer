@@ -8,7 +8,7 @@ public class GuidingSet {
 
     private static List<String> GUIDING_SET;
 
-    {
+    static {
         GUIDING_SET = Arrays.asList(DEAR_MOM, THE_WHEELS_ON_THE_BUS, ITSY_BITSY_SPIDER);
     }
 
