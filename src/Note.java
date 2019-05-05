@@ -1,78 +1,109 @@
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Helper class that accommodates some utility functions
+ * used in the composition class. Includes methods that
+ * change the representation of the music notes. Also
+ * includes methods that compute the distances between
+ * the notes.
+ *
+ * @author Daniel Krastev
+ * @version 1.0
+ */
 public class Note {
-    private int[] arrNote;
-    private String strNote;
 
-    public Note(final String note) {
-        strNote = note;
-    }
-
-    public Note(final int key, final int length) {
-        arrNote = new int[2];
-        arrNote[0] = key;
-        arrNote[1] = length;
-    }
-
-    public static String NotesToStringSong(final Note[] notes) {
+    /**
+     * Takes song represented as an int array
+     * and returns a string that could be directly
+     * passed to the JFugue's player.
+     *
+     * @param notes The song array.
+     * @return The song as a String.
+     */
+    public static String SongArrayToString(final int[][] notes) {
         StringBuilder song = new StringBuilder();
-        String str;
-        for(Note note : notes) {
-            str = note.getStringForm();
-            song.append(str);
+        for(int[] note : notes) {
+            song.append(NoteArrayToString(note));
             song.append(" ");
         }
         return song.toString();
     }
 
-    public static List<Note> StringSongToNotes(final String song) {
-        List<Note> notes = new ArrayList<>();
-        for(String strNote : song.split(" ")) {
-            notes.add(new Note(strNote));
+    /**
+     * Takes song represented as a String
+     * and returns an int array representation
+     * of it. [[pitch, length], [note], [note]... ]
+     *
+     * @param song The song string.
+     * @return The song as a 2 dimensional integer array.
+     */
+    public static int[][] StringSongToArray(final String song) {
+        String[] notes = song.split(" ");
+        int [][] res = new int[notes.length][2];
+        for(int i = 0; i < notes.length; i++) {
+            res[i] = StringNoteToArray(notes[i]);
         }
-        return notes;
+        return res;
     }
 
-    public void mutate() {
-        if(arrNote == null) {
-            parse();
+    /**
+     * Takes a song represented as an int array
+     * and return an array of the distances between
+     * the consecutive notes.
+     *
+     * @param song The song.
+     * @return Distances array.
+     */
+    public static int[] ComputeDistances(final int[][] song) {
+        int[] res = new int[song.length - 1];
+        for(int i = 0; i < res.length; i ++) {
+            res[i] = song[i + 1][0] - song[i][0];
         }
-        doMutate();
+        return res;
     }
 
-    private void doMutate() {
-        arrNote[0]++;
-        if(arrNote[0] > 96) {
-            arrNote[0] = 8;
+    /**
+     * Takes multiple arrays of the same size
+     * and computes the respective averages.
+     *
+     * @param songs The songs represented as arrays.
+     * @return The array with the averages.
+     */
+    public static double[] ComputeAverageDistances(final int[]... songs) {
+        double[] res = new double[songs[0].length];
+        double songsNum = songs.length;
+        double idxSum;
+        for(int i = 0; i < res.length; i++) {
+            idxSum = 0;
+            for (int e = 0; e < songsNum; e++) {
+                idxSum += songs[e][i];
+            }
+            res[i] = idxSum / songsNum;
         }
-        arrNote[1] = (arrNote[1] + 1) % 8;
+        return res;
     }
 
-
-    public int[] getIntForm() {
-        if(arrNote != null) {
-            return arrNote;
-        }
-        return parse();
-    }
-
-    public String getStringForm() {
-        if(strNote != null) {
-            return strNote;
-        }
-        return toStringNote();
-    }
-
-    private String toStringNote() {
+    /**
+     * Takes a single array note and returns a
+     * string as per JFugue's library.
+     *
+     * @param arrNote The note array.
+     * @return The string note.
+     */
+    private static String NoteArrayToString(final int[] arrNote) {
         StringBuilder res = new StringBuilder();
-        res.append(getStrNote(arrNote[0]));
-        res.append(getStrOctave(arrNote[0]));
-        res.append(getStrLength(arrNote[1]));
+        res.append(GetStringKey(arrNote[0]));
+        res.append(GetStringOctave(arrNote[0]));
+        res.append(GetStringLength(arrNote[1]));
         return res.toString();
     }
 
-    private String getStrNote(final int n) {
+    /**
+     * Takes an integer and returns
+     * the respective note as a String.
+     *
+     * @param n An int code of the note.
+     * @return The String note.
+     */
+    private static String GetStringKey(final int n) {
         switch (n % 12) {
             case 0: return "C";
             case 1: return "C#";
@@ -90,7 +121,14 @@ public class Note {
         }
     }
 
-    private String getStrOctave(final int n) {
+    /**
+     * Takes an int note and returns
+     * its octave.
+     *
+     * @param n Note as per JFugues codes.
+     * @return The octave of the note passed.
+     */
+    private static String GetStringOctave(final int n) {
         switch (n / 12) {
             case 0: return "0";
             case 1: return "1";
@@ -107,7 +145,15 @@ public class Note {
         }
     }
 
-    private String getStrLength(final int l) {
+    /**
+     * Takes an integer encoded length
+     * of a note and returns the respective
+     * JFugue's code for it.
+     *
+     * @param l The int code of the length of a note.
+     * @return The JFugue's code of the length of a note.
+     */
+    private static String GetStringLength(final int l) {
         switch (l) {
             case 0: return "w";
             case 1: return "h";
@@ -121,18 +167,33 @@ public class Note {
         }
     }
 
-    private int[] parse() {
-        arrNote = new int[2];
+    /**
+     * Take a String representation of a note
+     * and returns an int array of it.
+     *
+     * @param strNote The string note.
+     * @return The int array note.
+     */
+    private static int[] StringNoteToArray(final String strNote) {
+        int[] res = new int[2];
         int octave;
         int noteL;
         noteL = strNote.length();
         octave = Character.getNumericValue(strNote.charAt(noteL - 2));
-        arrNote[0] = getIntNote(noteL == 3 ? strNote.substring(0, 1) : strNote.substring(0, 2), octave);
-        arrNote[1] = getIntLength(strNote.charAt(noteL - 1));
-        return arrNote;
+        res[0] = GetIntNote(noteL == 3 ? strNote.substring(0, 1) : strNote.substring(0, 2), octave);
+        res[1] = GetIntLength(strNote.charAt(noteL - 1));
+        return res;
     }
 
-    private int getIntLength(final char l) {
+    /**
+     * Takes a char representing the length of a note,
+     * as per JFugue's codes and returns a respective
+     * integer.
+     *
+     * @param l The char length.
+     * @return The int coded length.
+     */
+    private static int GetIntLength(final char l) {
         switch (l) {
             case 'w': return 0;
             case 'h': return 1;
@@ -146,11 +207,26 @@ public class Note {
         }
     }
 
-    private int getIntNote(final String n, final int octave) {
-        return getNoteIntPosition(n) + 12 * octave;
+    /**
+     * Takes a note and return its JFugue's code.
+     *
+     * @param n The String note.
+     * @param octave The precalculated octave.
+     * @return The int code as per the JFugue's library.
+     */
+    private static int GetIntNote(final String n, final int octave) {
+        return GetNoteIntPosition(n) + 12 * octave;
     }
 
-    private int getNoteIntPosition(final String n) {
+    /**
+     * Takes a String note without octave
+     * and returns its position in a single
+     * octave.
+     *
+     * @param n The String note.
+     * @return The integer position in the octave.
+     */
+    private static int GetNoteIntPosition(final String n) {
         switch (n) {
             case "C": return 0;
             case "C#": return 1;
