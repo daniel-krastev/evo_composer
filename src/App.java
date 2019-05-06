@@ -45,19 +45,21 @@ public class App {
     }
 
     public static void playGuidingSet(final Player player) {
-        System.out.println("Playing guiding set.");
+        System.out.println("Playing guiding set. Three short songs.");
         for (String song : GuidingSet.GET_SET()) {
             player.play(song);
         }
+        System.out.println("Exit.");
     }
 
     public static void playGeneratedSet(final Player player) {
-        System.out.println("Playing few songs generated with the composer...");
+        System.out.println("Playing 6 short songs generated with the composer...");
         for (String[] song : GeneratedSongs.GET_SONGS()) {
             System.out.println("Playing song: " + song[1]);
             System.out.println("Fitness: " + song[0]);
             player.play(song[1]);
             System.out.print("\n\n");
         }
+        System.out.println("Exit.");
     }
 }
